@@ -1,5 +1,5 @@
 //
-//  SPoT+Flickr.h
+//  SPoT+Create.h
 //  Core Data SPoT
 //
 //  Created by Marko Kuljanski on 3/8/13.
@@ -8,6 +8,8 @@
 
 #import "SPoT.h"
 
-@interface SPoT (Flickr)
+@interface SPoT (Create)
+
++ (SPoT *)spotWithTitle:(NSString *)title inManagedObjectContext:(NSManagedObjectContext *)context;
 
 @end

@@ -7,7 +7,10 @@
 //
 
 #import "CoreDataTableViewController.h"
+#import "SPoT.h"
 
 @interface StanfordFlickrPhotoCDTVC : CoreDataTableViewController
+
+@property (nonatomic, strong) SPoT *spot;
 
 @end

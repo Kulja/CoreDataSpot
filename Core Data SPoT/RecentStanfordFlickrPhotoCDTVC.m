@@ -7,32 +7,55 @@
 //
 
 #import "RecentStanfordFlickrPhotoCDTVC.h"
-
-@interface RecentStanfordFlickrPhotoCDTVC ()
-
-@end
+#import "CoreDataSingleton.h"
 
 @implementation RecentStanfordFlickrPhotoCDTVC
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+- (void)setManagedObjectContext:(NSManagedObjectContext *)managedObjectContext
 {
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if (self) {
-        // Custom initialization
+    _managedObjectContext = managedObjectContext;
+    if (managedObjectContext) {
+        [self setupFetchedResultsController];
+    } else {
+        self.fetchedResultsController = nil;
     }
-    return self;
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    if (!self.managedObjectContext) [self useDocument];
 }
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	// Do any additional setup after loading the view.
+    self.navigationItem.title = @"Recents";
 }
 
-- (void)didReceiveMemoryWarning
+- (void)useDocument
 {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+    CoreDataSingleton *cds = [CoreDataSingleton getInstance];
+    
+    [cds openDocumentWithBlock:^(BOOL success) {
+        if (success) self.managedObjectContext = cds.document.managedObjectContext;
+        else NSLog(@"couldn’t create or open document");
+    }];
+}
+
+// create a fetch request that looks for photos with accessDate and hook it up through NSFRC
+- (void)setupFetchedResultsController
+{
+    NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Photo"];
+    request.sortDescriptors = [NSArray arrayWithObject:[NSSortDescriptor sortDescriptorWithKey:@"accessDate"
+                                                                                     ascending:NO]];
+    request.fetchLimit = 10;
+    request.predicate = [NSPredicate predicateWithFormat:@"accessDate != nil"];
+    
+    self.fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:request
+                                                                        managedObjectContext:self.managedObjectContext
+                                                                          sectionNameKeyPath:nil
+                                                                                   cacheName:nil];
 }
 
 @end

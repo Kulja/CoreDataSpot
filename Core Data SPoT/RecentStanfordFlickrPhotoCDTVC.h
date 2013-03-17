@@ -10,4 +10,6 @@
 
 @interface RecentStanfordFlickrPhotoCDTVC : StanfordFlickrPhotoCDTVC
 
+@property (strong, nonatomic) NSManagedObjectContext *managedObjectContext;
+
 @end

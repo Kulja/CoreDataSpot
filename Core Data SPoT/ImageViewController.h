@@ -10,4 +10,10 @@
 
 @interface ImageViewController : UIViewController
 
+// the Model for this VC
+// simply the URL of a UIImage-compatible image (jpg, png, etc.)
+@property (nonatomic, strong) NSURL *imageURL;
+
+@property (strong, nonatomic) UIBarButtonItem *splitViewBarButtonItem;
+
 @end

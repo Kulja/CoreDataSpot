@@ -7,32 +7,125 @@
 //
 
 #import "StanfordFlickrSpotCDTVC.h"
-
-@interface StanfordFlickrSpotCDTVC ()
-
-@end
+#import "FlickrFetcher.h"
+#import "Photo+Flickr.h"
+#import "SPoT.h"
+#import "CoreDataSingleton.h"
 
 @implementation StanfordFlickrSpotCDTVC
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+- (void)setManagedObjectContext:(NSManagedObjectContext *)managedObjectContext
 {
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if (self) {
-        // Custom initialization
+    _managedObjectContext = managedObjectContext;
+    if (managedObjectContext) {
+        [self setupFetchedResultsController];
+    } else {
+        self.fetchedResultsController = nil;
     }
-    return self;
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    if (!self.managedObjectContext) [self useDocument];
 }
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	// Do any additional setup after loading the view.
+    self.navigationItem.title = @"SPoT";
+    [self.refreshControl addTarget:self action:@selector(loadStanfordPhotosFromFlickr) forControlEvents:UIControlEventValueChanged];
 }
 
-- (void)didReceiveMemoryWarning
+- (void)useDocument
 {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+    CoreDataSingleton *cds = [CoreDataSingleton getInstance];
+    
+    [cds openDocumentWithBlock:^(BOOL success) {
+        if (success) self.managedObjectContext = cds.document.managedObjectContext;
+        else NSLog(@"couldn’t create or open document");
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if ([self.fetchedResultsController.fetchedObjects count] == 0) {
+                [self loadStanfordPhotosFromFlickr];
+            }
+        });
+    }];
+}
+
+- (void)loadStanfordPhotosFromFlickr
+{
+    [self.refreshControl beginRefreshing];
+    dispatch_queue_t stanfordPhotoLoaderQ = dispatch_queue_create("stanford photo loader", NULL);
+    dispatch_async(stanfordPhotoLoaderQ, ^{
+        
+        [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
+        NSArray *arrayOfStanfordPhotos = [FlickrFetcher stanfordPhotos];
+        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+        
+        [self.managedObjectContext performBlock:^{
+            for (NSDictionary *flickrInfo in arrayOfStanfordPhotos) {
+                [Photo photoWithFlickrInfo:flickrInfo inManagedObjectContext:self.managedObjectContext];
+            }
+            
+            // explicit saving 
+            [[CoreDataSingleton getInstance] saveDocument];
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self.refreshControl endRefreshing];
+            });
+        }];
+    });
+}
+
+// Create an NSFetchRequest to get all spots and hook it up to our table via an NSFetchedResultsController
+- (void)setupFetchedResultsController
+{
+    NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"SPoT"];
+    request.sortDescriptors = [NSArray arrayWithObject:[NSSortDescriptor sortDescriptorWithKey:@"title" ascending:YES selector:@selector(localizedCaseInsensitiveCompare:)]];
+    request.predicate = nil; // all spots
+    
+    self.fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:request
+                                                                        managedObjectContext:self.managedObjectContext
+                                                                          sectionNameKeyPath:nil
+                                                                                   cacheName:nil];
+}
+
+// loads up a table view cell with the spot name and number of photos in that spot at the given row in the Model
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"Flickr Spot"];
+    
+    // ask NSFetchedResultsController for the NSMO at the row in question
+    SPoT *spot = [self.fetchedResultsController objectAtIndexPath:indexPath];
+    // Configure the cell...
+    cell.textLabel.text = spot.title;
+    if ([spot.title isEqualToString:@"All"]) {
+        cell.detailTextLabel.text = nil;
+    } else {
+        cell.detailTextLabel.text = [NSString stringWithFormat:@"%d photos", [spot.photos count]];
+    }
+    
+    return cell;
+}
+
+// prepares for the "Show Photos in Spot" segue by seeing if the destination view controller of the segue
+//  understands the method "setSpot:"
+// if it does, it sends setSpot: to the destination view controller with
+//  the NSArray of NSDictionaries of the spot that was selected in the UITableView as the argument
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+{
+    if ([sender isKindOfClass:[UITableViewCell class]]) {
+        NSIndexPath *indexPath = [self.tableView indexPathForCell:sender];
+        if (indexPath) {
+            SPoT *spot = [self.fetchedResultsController objectAtIndexPath:indexPath];
+            if ([segue.identifier isEqualToString:@"Show Photos in Spot"]) {
+                if ([segue.destinationViewController respondsToSelector:@selector(setSpot:)]) {
+                    [segue.destinationViewController performSelector:@selector(setSpot:) withObject:spot];
+                }
+            }
+        }
+    }
 }
 
 @end

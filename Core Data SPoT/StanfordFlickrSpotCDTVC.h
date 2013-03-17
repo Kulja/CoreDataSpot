@@ -6,8 +6,10 @@
 //  Copyright (c) 2013 Marko Kuljanski. All rights reserved.
 //
 
-#import "FlickrSpotCDTVC.h"
+#import "CoreDataTableViewController.h"
 
-@interface StanfordFlickrSpotCDTVC : FlickrSpotCDTVC
+@interface StanfordFlickrSpotCDTVC : CoreDataTableViewController
+
+@property (strong, nonatomic) NSManagedObjectContext *managedObjectContext;
 
 @end

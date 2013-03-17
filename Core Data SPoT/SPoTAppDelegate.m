@@ -8,7 +8,7 @@
 
 #import "SPoTAppDelegate.h"
 
-@implementation SPoTAppDelegate
+@implementation SPoTAppDelegate 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {

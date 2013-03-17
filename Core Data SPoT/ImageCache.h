@@ -10,4 +10,7 @@
 
 @interface ImageCache : NSObject
 
++ (NSData *)imageDataForImageURL:(NSURL *)url;
++ (void)saveImageData:(NSData *)imageData forImageURL:(NSURL *)imageURL;
+
 @end

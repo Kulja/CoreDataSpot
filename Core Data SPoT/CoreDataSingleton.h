@@ -10,4 +10,10 @@
 
 @interface CoreDataSingleton : NSObject
 
+@property (strong, nonatomic) UIManagedDocument *document;
+
++ (CoreDataSingleton *) getInstance;
+- (void)openDocumentWithBlock:(void (^)(BOOL))block;
+- (void)saveDocument;
+
 @end
