@@ -75,7 +75,9 @@
             NSData *imageData = [[NSData alloc] initWithContentsOfURL:[NSURL URLWithString:photo.squareImageURL]];
             [photo.managedObjectContext performBlock:^{
                 [Photo insertThumbnailImageData:imageData forPhoto:photo];
-                [cell setNeedsLayout];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [cell setNeedsLayout];
+                });
             }];
         });
     }
@@ -109,10 +111,14 @@
         [self setupFetchedResultsControllerWithPredicate:predicate];
     } else {
         [self setupFetchedResultsControllerWithPredicate:nil];
-        [searchBar resignFirstResponder];
     }
     
     [self performFetch];
+}
+
+- (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar
+{
+    [searchBar resignFirstResponder];
 }
 
 #pragma mark - Segue

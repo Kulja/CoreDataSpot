@@ -141,7 +141,15 @@
 				20EFF8A216EC8E4F0051970B /* ImageCache.m */,
 				20ADAD1616F08F2400FD1C69 /* CoreDataSingleton.h */,
 				20ADAD1716F08F2400FD1C69 /* CoreDataSingleton.m */,
-				20C143E016F64AA900A60A40 /* Model */,
+				20C143DC16F63BC500A60A40 /* Photo.h */,
+				20C143DD16F63BC500A60A40 /* Photo.m */,
+				208AEFC416EA2CAA0088548B /* Photo+Flickr.h */,
+				208AEFC516EA2CAA0088548B /* Photo+Flickr.m */,
+				20C143D916F63BC500A60A40 /* SPoT.h */,
+				20C143DA16F63BC500A60A40 /* SPoT.m */,
+				208AEFB916EA1F400088548B /* SPoT+Create.h */,
+				208AEFBA16EA1F400088548B /* SPoT+Create.m */,
+				208AEFAA16E9F3FD0088548B /* CoreDataSPoT.xcdatamodeld */,
 				208AEFA216E9F15B0088548B /* FlickrFetcher */,
 				208AEF7D16E9F0620088548B /* Supporting Files */,
 			);
@@ -172,22 +180,6 @@
 				208AEFA516E9F18E0088548B /* FlickrFetcher.m */,
 			);
 			name = FlickrFetcher;
-			sourceTree = "<group>";
-		};
-		20C143E016F64AA900A60A40 /* Model */ = {
-			isa = PBXGroup;
-			children = (
-				20C143DC16F63BC500A60A40 /* Photo.h */,
-				20C143DD16F63BC500A60A40 /* Photo.m */,
-				208AEFC416EA2CAA0088548B /* Photo+Flickr.h */,
-				208AEFC516EA2CAA0088548B /* Photo+Flickr.m */,
-				20C143D916F63BC500A60A40 /* SPoT.h */,
-				20C143DA16F63BC500A60A40 /* SPoT.m */,
-				208AEFB916EA1F400088548B /* SPoT+Create.h */,
-				208AEFBA16EA1F400088548B /* SPoT+Create.m */,
-				208AEFAA16E9F3FD0088548B /* CoreDataSPoT.xcdatamodeld */,
-			);
-			name = Model;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
