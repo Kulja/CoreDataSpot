@@ -114,6 +114,7 @@
 
 - (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar
 {
+    // removes keyboard
     [searchBar resignFirstResponder];
 }
 
