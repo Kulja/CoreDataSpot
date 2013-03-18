@@ -29,8 +29,8 @@
     } else {
         request.predicate = [NSPredicate predicateWithFormat:@"whereIs = %@", self.spot];
     }
-    
     if (predicate) request.predicate = predicate;
+    
     request.sortDescriptors = [NSArray arrayWithObject:[NSSortDescriptor sortDescriptorWithKey:sortDescriptorWithKey
                                                                                      ascending:YES
                                                                                       selector:@selector(localizedCaseInsensitiveCompare:)]];
@@ -101,19 +101,15 @@
 
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText
 {
+    NSPredicate *predicate = nil;
     if ([searchText length]) {
-        NSPredicate *predicate = nil;
         if ([self.spot.title isEqualToString:@"All"]) {
-            predicate = [NSPredicate predicateWithFormat:@"(subtitle contains[cd] %@) OR (title contains[cd] %@)", searchText, searchText];
+            predicate = [NSPredicate predicateWithFormat:@"title contains[cd] %@ OR subtitle contains[cd] %@", searchText, searchText];
         } else {
-            predicate = [NSPredicate predicateWithFormat:@"(subtitle contains[cd] %@) OR (title contains[cd] %@) AND (whereIs = %@)", searchText, searchText, self.spot];
+            predicate = [NSPredicate predicateWithFormat:@"(title contains[cd] %@ OR subtitle contains[cd] %@) AND whereIs = %@", searchText, searchText, self.spot];
         }
-        [self setupFetchedResultsControllerWithPredicate:predicate];
-    } else {
-        [self setupFetchedResultsControllerWithPredicate:nil];
     }
-    
-    [self performFetch];
+    [self setupFetchedResultsControllerWithPredicate:predicate];
 }
 
 - (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar
