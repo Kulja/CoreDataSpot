@@ -1,16 +1,16 @@
 //
-//  SPoT.m
+//  Tag.m
 //  Core Data SPoT
 //
-//  Created by Marko Kuljanski on 3/17/13.
+//  Created by Marko Kuljanski on 3/20/13.
 //  Copyright (c) 2013 Marko Kuljanski. All rights reserved.
 //
 
-#import "SPoT.h"
+#import "Tag.h"
 #import "Photo.h"
 
 
-@implementation SPoT
+@implementation Tag
 
 @dynamic title;
 @dynamic photos;

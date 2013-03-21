@@ -9,7 +9,7 @@
 #import "StanfordFlickrSpotCDTVC.h"
 #import "FlickrFetcher.h"
 #import "Photo+Flickr.h"
-#import "SPoT.h"
+#import "Tag.h"
 #import "CoreDataSingleton.h"
 
 @implementation StanfordFlickrSpotCDTVC
@@ -28,6 +28,7 @@
 {
     [super viewWillAppear:animated];
     if (!self.managedObjectContext) [self useDocument];
+    //self.debug = YES;
 }
 
 - (void)viewDidLoad
@@ -78,12 +79,12 @@
     });
 }
 
-// Create an NSFetchRequest to get all spots and hook it up to our table via an NSFetchedResultsController
+// Create an NSFetchRequest to get all tags and hook it up to our table via an NSFetchedResultsController
 - (void)setupFetchedResultsController
 {
-    NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"SPoT"];
+    NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Tag"];
     request.sortDescriptors = [NSArray arrayWithObject:[NSSortDescriptor sortDescriptorWithKey:@"title" ascending:YES selector:@selector(localizedCaseInsensitiveCompare:)]];
-    request.predicate = nil; // all spots
+    request.predicate = nil; // all tags
     
     self.fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:request
                                                                         managedObjectContext:self.managedObjectContext
@@ -94,17 +95,13 @@
 // loads up a table view cell with the spot name and number of photos in that spot at the given row in the Model
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"Flickr Spot"];
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"Flickr Tag"];
     
     // ask NSFetchedResultsController for the NSMO at the row in question
-    SPoT *spot = [self.fetchedResultsController objectAtIndexPath:indexPath];
+    Tag *tag = [self.fetchedResultsController objectAtIndexPath:indexPath];
     // Configure the cell...
-    cell.textLabel.text = spot.title;
-    if ([spot.title isEqualToString:@"All"]) {
-        cell.detailTextLabel.text = nil;
-    } else {
-        cell.detailTextLabel.text = [NSString stringWithFormat:@"%d photos", [spot.photos count]];
-    }
+    cell.textLabel.text = tag.title;
+    cell.detailTextLabel.text = [NSString stringWithFormat:@"%d photos", [tag.photos count]];
     
     return cell;
 }
@@ -118,10 +115,10 @@
     if ([sender isKindOfClass:[UITableViewCell class]]) {
         NSIndexPath *indexPath = [self.tableView indexPathForCell:sender];
         if (indexPath) {
-            SPoT *spot = [self.fetchedResultsController objectAtIndexPath:indexPath];
-            if ([segue.identifier isEqualToString:@"Show Photos in Spot"]) {
-                if ([segue.destinationViewController respondsToSelector:@selector(setSpot:)]) {
-                    [segue.destinationViewController performSelector:@selector(setSpot:) withObject:spot];
+            Tag *tag = [self.fetchedResultsController objectAtIndexPath:indexPath];
+            if ([segue.identifier isEqualToString:@"Show Photos in Tag"]) {
+                if ([segue.destinationViewController respondsToSelector:@selector(setTag:)]) {
+                    [segue.destinationViewController performSelector:@selector(setTag:) withObject:tag];
                 }
             }
         }

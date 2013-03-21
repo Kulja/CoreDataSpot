@@ -13,6 +13,6 @@
 + (Photo *)photoWithFlickrInfo:(NSDictionary *)flickrInfo inManagedObjectContext:(NSManagedObjectContext *)context;
 + (void)setAccessDateForPhoto:(Photo *)photo;
 + (void)insertThumbnailImageData:(NSData *)thumbnailIageData forPhoto:(Photo *)photo;
-+ (void)flagPhotoAsDeleted:(Photo *)photo;
++ (void)flagPhotoAsDeleted:(Photo *)photo inTag:(Tag *)tag;
 
 @end

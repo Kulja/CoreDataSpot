@@ -1,23 +1,24 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model name="" userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="2057" systemVersion="12C60" minimumToolsVersion="Xcode 4.3" macOSVersion="Automatic" iOSVersion="Automatic">
+<model name="" userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="2061" systemVersion="12D78" minimumToolsVersion="Xcode 4.3" macOSVersion="Automatic" iOSVersion="Automatic">
     <entity name="Photo" representedClassName="Photo" syncable="YES">
         <attribute name="accessDate" optional="YES" attributeType="Date" syncable="YES"/>
         <attribute name="largeImageURL" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="originalImageURL" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="section" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="sectionAll" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="squareImageURL" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="subtitle" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="thumbnailImageData" optional="YES" attributeType="Binary" syncable="YES"/>
         <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="unique" optional="YES" attributeType="String" syncable="YES"/>
-        <relationship name="whereIs" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="SPoT" inverseName="photos" inverseEntity="SPoT" syncable="YES"/>
+        <relationship name="whereIs" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Tag" inverseName="photos" inverseEntity="Tag" syncable="YES"/>
     </entity>
-    <entity name="SPoT" representedClassName="SPoT" syncable="YES">
+    <entity name="Tag" representedClassName="Tag" syncable="YES">
         <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="photos" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Photo" inverseName="whereIs" inverseEntity="Photo" syncable="YES"/>
     </entity>
     <elements>
-        <element name="Photo" positionX="-1154" positionY="-819" width="128" height="193"/>
-        <element name="SPoT" positionX="-1386" positionY="-819" width="128" height="73"/>
+        <element name="Photo" positionX="-1215" positionY="-787" width="128" height="208"/>
+        <element name="Tag" positionX="-1451" positionY="-810" width="128" height="73"/>
     </elements>
 </model>

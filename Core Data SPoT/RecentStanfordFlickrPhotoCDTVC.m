@@ -50,7 +50,8 @@
     request.sortDescriptors = [NSArray arrayWithObject:[NSSortDescriptor sortDescriptorWithKey:@"accessDate"
                                                                                      ascending:NO]];
     request.fetchLimit = 10;
-    request.predicate = [NSPredicate predicateWithFormat:@"accessDate != nil"];
+    // we dont't photo flagged as deleted
+    request.predicate = [NSPredicate predicateWithFormat:@"accessDate != nil AND whereIs.@count != %d", 0];
     
     self.fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:request
                                                                         managedObjectContext:self.managedObjectContext

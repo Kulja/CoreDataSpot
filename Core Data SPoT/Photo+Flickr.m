@@ -8,26 +8,24 @@
 
 #import "Photo+Flickr.h"
 #import "FlickrFetcher.h"
-#import "SPoT+Create.h"
+#import "Tag+Create.h"
 
 @implementation Photo (Flickr)
 
-+ (NSString *)getTitleOfSpotForImage:(NSDictionary *)imageInfo
++ (NSArray *)getTitleOfTagsForImage:(NSDictionary *)imageInfo
 {
     // getting FLICKR_TAGS out of our image and formating it to our needs
     NSArray *tempArray = [[imageInfo objectForKey:FLICKR_TAGS] componentsSeparatedByString:@" "];
-    NSString *tag = @"";
-    for (NSString *tempString in tempArray) {
-        if (![tempString isEqualToString:@"cs193pspot"] && ![tempString isEqualToString:@"portrait"] && ![tempString isEqualToString:@"landscape"]) {
-            tag = [tag stringByAppendingFormat:@"%@ ", tempString];
+    NSArray *arrayOfTags = [NSArray array];
+    
+    arrayOfTags = [arrayOfTags arrayByAddingObject:@"All"];
+    for (NSString *tag in tempArray) {
+        if (![tag isEqualToString:@"cs193pspot"] && ![tag isEqualToString:@"portrait"] && ![tag isEqualToString:@"landscape"]) {
+            arrayOfTags = [arrayOfTags arrayByAddingObject:[tag capitalizedString]];
         }
     }
-    // removing space at the end of our formated tag and capitalizing it
-    if ([tag length] > 0) {
-        tag = [[tag substringToIndex:[tag length] - 1] capitalizedString];
-    }
     
-    return tag;
+    return arrayOfTags;
 }
 
 + (Photo *)photoWithFlickrInfo:(NSDictionary *)flickrInfo inManagedObjectContext:(NSManagedObjectContext *)context
@@ -44,7 +42,7 @@
     
     if (!photos || ([photos count] > 1)) {
         // error handling
-        NSLog(@"error");
+        NSLog(@"Error in Photo");
     } else if (![photos count]) {
         photo = [NSEntityDescription insertNewObjectForEntityForName:@"Photo" inManagedObjectContext:context];
         photo.unique = [[flickrInfo objectForKey:FLICKR_PHOTO_ID] description];
@@ -54,9 +52,13 @@
         photo.squareImageURL = [[FlickrFetcher urlForPhoto:flickrInfo format:FlickrPhotoFormatSquare] absoluteString];
         photo.largeImageURL = [[FlickrFetcher urlForPhoto:flickrInfo format:FlickrPhotoFormatLarge] absoluteString];
         photo.originalImageURL = [[FlickrFetcher urlForPhoto:flickrInfo format:FlickrPhotoFormatOriginal] absoluteString];
-        photo.whereIs = [SPoT spotWithTitle:[Photo getTitleOfSpotForImage:flickrInfo] inManagedObjectContext:context];
         
-        [SPoT spotWithTitle:@"All" inManagedObjectContext:context];
+        NSSet *setOfTags = [NSSet set];
+        for (NSString *tag in [self getTitleOfTagsForImage:flickrInfo]) {
+            setOfTags = [setOfTags setByAddingObject:[Tag tagWithTitle:tag inManagedObjectContext:context]];
+            photo.sectionAll = tag;
+        }
+        photo.whereIs = setOfTags;
     } else {
         photo = [photos lastObject];
     }
@@ -76,12 +78,13 @@
     }
 }
 
-+ (void)flagPhotoAsDeleted:(Photo *)photo
++ (void)flagPhotoAsDeleted:(Photo *)photo inTag:(Tag *)tag
 {
-    // remove the empty spot
-    if ([photo.whereIs.photos count] == 1) {
-        [photo.managedObjectContext deleteObject:photo.whereIs];
+    // remove the empty tag
+    if ([tag.photos count] == 1) {
+        [photo.managedObjectContext deleteObject:tag];
     }
+    
     photo.whereIs = nil;
 }
 

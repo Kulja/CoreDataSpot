@@ -16,37 +16,39 @@
 
 @implementation StanfordFlickrPhotoCDTVC
 
-// create a fetch request that looks for spot with the given name and hook it up through NSFRC
+// create a fetch request that looks for tag with the given name and hook it up through NSFRC
 - (void)setupFetchedResultsControllerWithPredicate:(NSPredicate *)predicate
 {
     NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Photo"];
     
-    NSString *sortDescriptorWithKey = @"title";
     NSString *sectionNameKeyPath = @"section";
-    if ([self.spot.title isEqualToString:@"All"]) {
-        sortDescriptorWithKey = @"whereIs.title";
-        sectionNameKeyPath = @"whereIs.title";
-    } else {
-        request.predicate = [NSPredicate predicateWithFormat:@"whereIs = %@", self.spot];
+    NSArray *arrayOfSortDescriptors = [NSArray array];
+    if ([self.tag.title isEqualToString:@"All"]) {
+        sectionNameKeyPath = @"sectionAll";
+        arrayOfSortDescriptors = [arrayOfSortDescriptors arrayByAddingObject:[NSSortDescriptor sortDescriptorWithKey:@"sectionAll"
+                                                                                                           ascending:YES
+                                                                                                            selector:@selector(localizedCaseInsensitiveCompare:)]];
     }
+    request.predicate = [NSPredicate predicateWithFormat:@"whereIs CONTAINS %@", self.tag];
     if (predicate) request.predicate = predicate;
     
-    request.sortDescriptors = [NSArray arrayWithObject:[NSSortDescriptor sortDescriptorWithKey:sortDescriptorWithKey
-                                                                                     ascending:YES
-                                                                                      selector:@selector(localizedCaseInsensitiveCompare:)]];
+    arrayOfSortDescriptors = [arrayOfSortDescriptors arrayByAddingObject:[NSSortDescriptor sortDescriptorWithKey:@"title"
+                                                                                                       ascending:YES
+                                                                                                        selector:@selector(localizedCaseInsensitiveCompare:)]];
+    request.sortDescriptors = arrayOfSortDescriptors;
     
     self.fetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:request
-                                                                        managedObjectContext:self.spot.managedObjectContext
+                                                                        managedObjectContext:self.tag.managedObjectContext
                                                                           sectionNameKeyPath:sectionNameKeyPath
                                                                                    cacheName:nil];
 }
 
 // update our title and set up our NSFRC when our Model is set
-- (void)setSpot:(SPoT *)spot
+- (void)setTag:(Tag *)tag
 {
-    _spot = spot;
-    self.title = spot.title;
-    if (self.spot.managedObjectContext) {
+    _tag = tag;
+    self.title = tag.title;
+    if (self.tag.managedObjectContext) {
         [self setupFetchedResultsControllerWithPredicate:nil];
         
         // hide searchbar (you can see it by scrolling up)
@@ -91,7 +93,7 @@
     if (editingStyle == UITableViewCellEditingStyleDelete) {
         Photo *photo = [self.fetchedResultsController objectAtIndexPath:indexPath];
         [photo.managedObjectContext performBlock:^{
-            [Photo flagPhotoAsDeleted:photo];
+            [Photo flagPhotoAsDeleted:photo inTag:self.tag];
             [[CoreDataSingleton getInstance] saveDocument];
         }];
     }
@@ -103,11 +105,7 @@
 {
     NSPredicate *predicate = nil;
     if ([searchText length]) {
-        if ([self.spot.title isEqualToString:@"All"]) {
-            predicate = [NSPredicate predicateWithFormat:@"title contains[cd] %@ OR subtitle contains[cd] %@", searchText, searchText];
-        } else {
-            predicate = [NSPredicate predicateWithFormat:@"(title contains[cd] %@ OR subtitle contains[cd] %@) AND whereIs = %@", searchText, searchText, self.spot];
-        }
+        predicate = [NSPredicate predicateWithFormat:@"(title contains[cd] %@ OR subtitle contains[cd] %@) AND whereIs CONTAINS %@", searchText, searchText, self.tag];
     }
     [self setupFetchedResultsControllerWithPredicate:predicate];
 }
